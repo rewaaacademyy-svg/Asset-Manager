@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "رِواء — أكاديمية تحفيظ القرآن"
+version = "1.0.0"
+id = "artifacts/rewaa"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19369
+
+[services.development]
+run = "pnpm --filter @workspace/rewaa run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/rewaa", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/rewaa/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19369"
+BASE_PATH = "/"
