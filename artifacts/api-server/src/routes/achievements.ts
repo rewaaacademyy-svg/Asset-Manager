@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
 import { db, achievementsTable, usersTable } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
 import { requireAuth } from "../middlewares/auth";
@@ -12,7 +12,7 @@ import {
 
 const router: IRouter = Router();
 
-router.get("/achievements", requireAuth, async (req, res): Promise<void> => {
+router.get("/achievements", requireAuth, async (req: Request, res: Response): Promise<void> => {
   const query = ListAchievementsQueryParams.safeParse(req.query);
   const studentId = query.success ? query.data.studentId : undefined;
 
@@ -40,7 +40,7 @@ router.get("/achievements", requireAuth, async (req, res): Promise<void> => {
   res.json(result);
 });
 
-router.post("/achievements", requireAuth, async (req, res): Promise<void> => {
+router.post("/achievements", requireAuth, async (req: Request, res: Response): Promise<void> => {
   const parsed = CreateAchievementBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -60,7 +60,7 @@ router.post("/achievements", requireAuth, async (req, res): Promise<void> => {
   });
 });
 
-router.patch("/achievements/:id", requireAuth, async (req, res): Promise<void> => {
+router.patch("/achievements/:id", requireAuth, async (req: Request, res: Response): Promise<void> => {
   const params = UpdateAchievementParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: "Invalid ID" });
@@ -95,7 +95,7 @@ router.patch("/achievements/:id", requireAuth, async (req, res): Promise<void> =
   });
 });
 
-router.delete("/achievements/:id", requireAuth, async (req, res): Promise<void> => {
+router.delete("/achievements/:id", requireAuth, async (req: Request, res: Response): Promise<void> => {
   const params = DeleteAchievementParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: "Invalid ID" });

@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
 import { db, notificationsTable } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
 import { requireAuth, getCurrentUser } from "../middlewares/auth";
@@ -6,7 +6,7 @@ import { MarkNotificationReadParams } from "@workspace/api-zod";
 
 const router: IRouter = Router();
 
-router.get("/notifications", requireAuth, async (req, res): Promise<void> => {
+router.get("/notifications", requireAuth, async (req: Request, res: Response): Promise<void> => {
   const user = getCurrentUser(req)!;
   const notifications = await db
     .select()
@@ -17,7 +17,7 @@ router.get("/notifications", requireAuth, async (req, res): Promise<void> => {
   res.json(notifications);
 });
 
-router.patch("/notifications/:id/read", requireAuth, async (req, res): Promise<void> => {
+router.patch("/notifications/:id/read", requireAuth, async (req: Request, res: Response): Promise<void> => {
   const params = MarkNotificationReadParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: "Invalid ID" });

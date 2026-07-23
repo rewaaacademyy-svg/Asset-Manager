@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
 import { db, usersTable } from "@workspace/db";
 import { eq, or } from "drizzle-orm";
 import { createSession, deleteSession, requireAuth, getCurrentUser } from "../middlewares/auth";
@@ -10,7 +10,7 @@ function checkPassword(input: string, stored: string): boolean {
   return input === stored;
 }
 
-router.post("/auth/login", async (req, res): Promise<void> => {
+router.post("/auth/login", async (req: Request, res: Response): Promise<void> => {
   const parsed = LoginBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -53,14 +53,14 @@ router.post("/auth/login", async (req, res): Promise<void> => {
   });
 });
 
-router.post("/auth/logout", async (req, res): Promise<void> => {
+router.post("/auth/logout", async (req: Request, res: Response): Promise<void> => {
   const token = req.cookies?.["rewaa_session"] || req.headers.authorization?.replace("Bearer ", "");
   if (token) await deleteSession(token as string);
   res.clearCookie("rewaa_session");
   res.json({ success: true });
 });
 
-router.get("/auth/me", requireAuth, async (req, res): Promise<void> => {
+router.get("/auth/me", requireAuth, async (req: Request, res: Response): Promise<void> => {
   const user = getCurrentUser(req)!;
   res.json({
     id: user.id,

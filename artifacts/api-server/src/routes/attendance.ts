@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
 import { db, attendanceTable, usersTable } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
 import { requireAuth } from "../middlewares/auth";
@@ -6,7 +6,7 @@ import { CreateAttendanceBody, ListAttendanceQueryParams } from "@workspace/api-
 
 const router: IRouter = Router();
 
-router.get("/attendance", requireAuth, async (req, res): Promise<void> => {
+router.get("/attendance", requireAuth, async (req: Request, res: Response): Promise<void> => {
   const query = ListAttendanceQueryParams.safeParse(req.query);
   const { studentId, classId } = query.success ? query.data : {};
 
@@ -25,7 +25,7 @@ router.get("/attendance", requireAuth, async (req, res): Promise<void> => {
   res.json(result);
 });
 
-router.post("/attendance", requireAuth, async (req, res): Promise<void> => {
+router.post("/attendance", requireAuth, async (req: Request, res: Response): Promise<void> => {
   const parsed = CreateAttendanceBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });

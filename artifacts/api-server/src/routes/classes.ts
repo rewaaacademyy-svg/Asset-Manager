@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
 import { db, classesTable, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { requireAuth } from "../middlewares/auth";
@@ -22,7 +22,7 @@ async function enrichClass(cls: typeof classesTable.$inferSelect) {
   };
 }
 
-router.get("/classes", requireAuth, async (req, res): Promise<void> => {
+router.get("/classes", requireAuth, async (req: Request, res: Response): Promise<void> => {
   const classes = await db.select().from(classesTable).orderBy(classesTable.dayOfWeek, classesTable.time);
   const users = await db.select().from(usersTable);
 
@@ -39,7 +39,7 @@ router.get("/classes", requireAuth, async (req, res): Promise<void> => {
   res.json(result);
 });
 
-router.post("/classes", requireAuth, async (req, res): Promise<void> => {
+router.post("/classes", requireAuth, async (req: Request, res: Response): Promise<void> => {
   const parsed = CreateClassBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -51,7 +51,7 @@ router.post("/classes", requireAuth, async (req, res): Promise<void> => {
   res.status(201).json(enriched);
 });
 
-router.get("/classes/:id", requireAuth, async (req, res): Promise<void> => {
+router.get("/classes/:id", requireAuth, async (req: Request, res: Response): Promise<void> => {
   const params = GetClassParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: "Invalid ID" });
@@ -67,7 +67,7 @@ router.get("/classes/:id", requireAuth, async (req, res): Promise<void> => {
   res.json(enriched);
 });
 
-router.patch("/classes/:id", requireAuth, async (req, res): Promise<void> => {
+router.patch("/classes/:id", requireAuth, async (req: Request, res: Response): Promise<void> => {
   const params = UpdateClassParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: "Invalid ID" });
@@ -94,7 +94,7 @@ router.patch("/classes/:id", requireAuth, async (req, res): Promise<void> => {
   res.json(enriched);
 });
 
-router.delete("/classes/:id", requireAuth, async (req, res): Promise<void> => {
+router.delete("/classes/:id", requireAuth, async (req: Request, res: Response): Promise<void> => {
   const params = DeleteClassParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: "Invalid ID" });

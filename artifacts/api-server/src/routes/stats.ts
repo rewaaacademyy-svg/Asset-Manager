@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
 import { db, usersTable, classesTable, achievementsTable, attendanceTable } from "@workspace/db";
 import { eq, count, desc } from "drizzle-orm";
 import { requireAuth } from "../middlewares/auth";
@@ -6,7 +6,7 @@ import { GetStudentParams } from "@workspace/api-zod";
 
 const router: IRouter = Router();
 
-router.get("/stats/dashboard", requireAuth, async (req, res): Promise<void> => {
+router.get("/stats/dashboard", requireAuth, async (req: Request, res: Response): Promise<void> => {
   const [{ value: totalStudents }] = await db
     .select({ value: count() })
     .from(usersTable)
@@ -62,7 +62,7 @@ router.get("/stats/dashboard", requireAuth, async (req, res): Promise<void> => {
   });
 });
 
-router.get("/stats/student/:id", requireAuth, async (req, res): Promise<void> => {
+router.get("/stats/student/:id", requireAuth, async (req: Request, res: Response): Promise<void> => {
   const params = GetStudentParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: "Invalid ID" });
