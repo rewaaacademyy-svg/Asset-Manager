@@ -6,7 +6,6 @@ import { LoginBody } from "@workspace/api-zod";
 
 const router: IRouter = Router();
 
-// Simple password check (in production use bcrypt - here using plain text for demo)
 function checkPassword(input: string, stored: string): boolean {
   return input === stored;
 }
@@ -23,23 +22,19 @@ router.post("/auth/login", async (req, res): Promise<void> => {
   const [user] = await db
     .select()
     .from(usersTable)
-    .where(
-      or(
-        eq(usersTable.email, identifier),
-        eq(usersTable.phone, identifier)
-      )
-    );
+    .where(or(eq(usersTable.email, identifier), eq(usersTable.phone, identifier)));
 
   if (!user || !checkPassword(password, user.passwordHash)) {
     res.status(401).json({ error: "بيانات الدخول غير صحيحة" });
     return;
   }
 
-  const token = createSession(user.id);
+  // createSession is now async — persists to DB
+  const token = await createSession(user.id);
 
   res.cookie("rewaa_session", token, {
     httpOnly: true,
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     sameSite: "lax",
   });
 
@@ -58,9 +53,9 @@ router.post("/auth/login", async (req, res): Promise<void> => {
   });
 });
 
-router.post("/auth/logout", (req, res): void => {
+router.post("/auth/logout", async (req, res): Promise<void> => {
   const token = req.cookies?.["rewaa_session"] || req.headers.authorization?.replace("Bearer ", "");
-  if (token) deleteSession(token as string);
+  if (token) await deleteSession(token as string);
   res.clearCookie("rewaa_session");
   res.json({ success: true });
 });

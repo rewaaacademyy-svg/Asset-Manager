@@ -5,3 +5,4 @@ export * from "./classes";
 export * from "./achievements";
 export * from "./notifications";
 export * from "./attendance";
+export * from "./sessions";
