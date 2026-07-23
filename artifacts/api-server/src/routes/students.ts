@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
 import { db, usersTable, studentsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { requireAuth } from "../middlewares/auth";
@@ -38,7 +38,7 @@ async function getStudentWithTeacher(userId: number) {
   };
 }
 
-router.get("/students", requireAuth, async (req, res): Promise<void> => {
+router.get("/students", requireAuth, async (req: Request, res: Response): Promise<void> => {
   const users = await db.select().from(usersTable).where(eq(usersTable.role, "student"));
   const extras = await db.select().from(studentsTable);
   const teachers = await db.select().from(usersTable).where(eq(usersTable.role, "teacher"));
@@ -63,7 +63,7 @@ router.get("/students", requireAuth, async (req, res): Promise<void> => {
   res.json(result);
 });
 
-router.post("/students", requireAuth, async (req, res): Promise<void> => {
+router.post("/students", requireAuth, async (req: Request, res: Response): Promise<void> => {
   const parsed = CreateStudentBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -83,7 +83,7 @@ router.post("/students", requireAuth, async (req, res): Promise<void> => {
   res.status(201).json(result);
 });
 
-router.get("/students/:id", requireAuth, async (req, res): Promise<void> => {
+router.get("/students/:id", requireAuth, async (req: Request, res: Response): Promise<void> => {
   const params = GetStudentParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: "Invalid ID" });
@@ -98,7 +98,7 @@ router.get("/students/:id", requireAuth, async (req, res): Promise<void> => {
   res.json(student);
 });
 
-router.patch("/students/:id", requireAuth, async (req, res): Promise<void> => {
+router.patch("/students/:id", requireAuth, async (req: Request, res: Response): Promise<void> => {
   const params = UpdateStudentParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: "Invalid ID" });
@@ -113,7 +113,7 @@ router.patch("/students/:id", requireAuth, async (req, res): Promise<void> => {
 
   const { name, email, phone, age, level, teacherId } = parsed.data;
 
-  const updateData: Record<string, any> = {};
+  const updateData: Record<string, string | number | null> = {};
   if (name !== undefined) updateData.name = name;
   if (email !== undefined) updateData.email = email;
   if (phone !== undefined) updateData.phone = phone;
@@ -123,7 +123,7 @@ router.patch("/students/:id", requireAuth, async (req, res): Promise<void> => {
     await db.update(usersTable).set(updateData).where(eq(usersTable.id, params.data.id));
   }
 
-  const extraUpdate: Record<string, any> = {};
+  const extraUpdate: Record<string, string | number | null> = {};
   if (level !== undefined) extraUpdate.level = level;
   if (teacherId !== undefined) extraUpdate.teacherId = teacherId;
 
@@ -139,7 +139,7 @@ router.patch("/students/:id", requireAuth, async (req, res): Promise<void> => {
   res.json(student);
 });
 
-router.delete("/students/:id", requireAuth, async (req, res): Promise<void> => {
+router.delete("/students/:id", requireAuth, async (req: Request, res: Response): Promise<void> => {
   const params = DeleteStudentParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: "Invalid ID" });
